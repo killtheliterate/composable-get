@@ -1,78 +1,58 @@
 /**
- * @file
- *
- * Predicate functions for determining the existiness and truthiness of values.
- * Borrowed from the book "Functional Javascript", pg.19
+ * @file Provides a composable get function that doesn't explode.
  */
 
 var _ = require('lodash');
 
 /**
- * Define the existence of something.
- * @param {*}
+ * Predicate to define the existence of something.
+ * @param {*} x - the thing to test, duh.
  * @returns {Boolean}
  *
- * JavaScript * has two values—null and undefined—that signify nonexistence.
- * Thus, existy * checks that its argument is neither of these things.
+ * Borrowed from Functional Javascript p.19 - http://oreil.ly/1q4leGp
  */
-var _existy = function existy(x) {
+var _existy = function(x) {
     return x != null;
 };
 
 /**
- * Determine if something should be considered a synonym for true.
- * @param {*}
+ * Predicate to determine if something should be considered a synonym for true.
+ * @param {*} x - the thing to test, duh.
  * @returns {Boolean}
+ *
+ * Borrowed from Functional Javascript p.19 - http://oreil.ly/1q4leGp
  */
-var _truthy = function truthy(x) {
+var _truthy = function(x) {
     return (x !== false) && _existy(x);
 };
 
 /**
- * Check if a property exists on an object.
- * @param {string} prop -
- * @param {Object} obj -
- * @returns {Object}
+ * Predicate to determine if a nested object should be considered a synonym for true.
+ * @param {Object} obj - the object to search.
+ * @param {string} prop - the piece to find.
+ * @returns {*}
  */
-composableCheckNested = _.curry(function(prop, obj) {
-    return _.reduce(prop.split('.'), function(o, p) {
-        return !existy(o) ? o : o[p];
-    }, obj);
-});
-
-/**
- * Check if an object contains a property.
- * @param {string} prop -
- * @param {Object} obj -
- * @returns {Boolean}
- */
-var composableHas = _.curry(function(prop, obj) {
-    return _.every(prop.split('.'), function(x) {
-
-        // Explain this.
-        if (typeof obj != 'object' || obj === null || ! x in obj) {
-            return false;
-        }
-        obj = obj[x];
-        return true;
-    });
+var _nestedTruthy = function(obj, prop) {
+    return _truthy(_.reduce(prop.split('.'), function(o, p) {
+        return !_truthy(o) ? o : o[p];
+    }, obj));
 };
 
 /**
- * Return a piece of an object.
- * @param {string} prop -
- * @param {Object} obj -
+ * Return a piece of an object if it exists.
+ * @param {string} prop - the piece to find.
+ * @param {Object} obj - the object to search.
  * @returns {*}
  */
 var composableGet = _.curry(function(prop, obj) {
 
     // If the object or the object.property aren't available, just return
-    // nothing.
-    if (_.isUndefined(obj)) {
-        return;
-    } else if (_.isUndefined(obj[prop])){
-        return;
-    } else {
+    // nothing. For your health.
+    if (_nestedTruthy(obj, prop)) {
         return obj[prop];
+    } else {
+        return;
     }
 });
+
+module.exports = composableGet;

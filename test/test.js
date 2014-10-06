@@ -1,63 +1,39 @@
-var parser = require('../index.js'),
-    fixture = require('./fixture'),
-    should = require('chai').should(),
-    _ = require('lodash');
+var should = require('chai').should();
+var _ = require('lodash');
+var get = require('../index');
+var chalk = require('chalk');
 
-describe('gHoursParser', function() {
+// Fixtures
+// ----------------------------------------------------------------------------
+var find = require('./fixture').find;
+var doNotFind = require('./fixture').doNotFind;
 
-    describe('#parseHoursString()', function() {
+var getDesc = function(name) {
+    return _.compose(
+        get('desc'),
+        _.partialRight(_.find, function(color) {
+            return color.name === name;
+        }),
+        get('colors')
+    );
+};
 
-        it('should return an array with a length > 0', function() {
-            parser.test.parseHoursString(fixture.twentyFour).length.should.equal(7);
-            parser.test.parseHoursString(fixture.amPm).length.should.equal(7);
-        });
+// Tests, dawg
+// ----------------------------------------------------------------------------
+describe('#composableGet()', function() {
 
+    it('should get properties', function() {
+        get('colors')(find).should.have.length(2);
     });
 
-    describe('#isPm()', function() {
-
-        it('should return true when PM is passed', function() {
-            parser.test.isPm(fixture.isPm).should.equal(true);
-        });
-
-        it('should return false when AM is passed', function() {
-            parser.test.isPm('AM').should.equal(false);
-        });
-
+    it('should be composable', function() {
+        getDesc('red')(find).should.equal('I am the color used to indicate badness');
     });
 
-    describe('#convertTo24Hour()', function() {
+    it('should not blow up if a search prop returns undefined', function() {
 
-        it('should return an int', function() {
-            parser.test.convertTo24Hour('AM', 10).should.equal(10);
-        });
-
-        it('should add 12 when PM', function() {
-            parser.test.convertTo24Hour('PM', 0).should.equal(12);
-        });
-
-    });
-
-    describe('#makeHoursObjs()', function() {
-
-        it('should return an array of objects', function() {
-            var withAmPm = parser.test.makeHoursObjs(fixture.makeHoursObjs1),
-                withoutAmPm = parser.test.makeHoursObjs(fixture.makeHoursObjs1);
-
-            _.isArray(withAmPm).should.equal(true);
-            _.isArray(withoutAmPm).should.equal(true);
-            _.isObject(withAmPm[0]).should.equal(true);
-            _.isObject(withoutAmPm[0]).should.equal(true);
-        });
-
-    });
-
-    describe('#parse()', function() {
-
-        it('should return an object that has the expected data', function() {
-            _.isEqual(parser.parse(fixture.amPm), fixture.parse).should.equal(true);
-        });
-
+        // The outermost function returns 'undefined' when a prop isn't found.
+        should.not.exist(getDesc('red')(doNotFind));
     });
 
 });
