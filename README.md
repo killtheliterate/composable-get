@@ -7,7 +7,7 @@ One benefit of using this module is that it should look for things safely,
 without exploding when an undefined object is searched.
 
 ## Examples:
-```
+```javascript
 // Straight-up
 var colors = getDesc('colors')(objectWithColorsProperty);
 
