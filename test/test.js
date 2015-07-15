@@ -36,4 +36,7 @@ describe('#composableGet()', function() {
         should.not.exist(getDesc('red')(doNotFind));
     });
 
+    it('should explode', function() {
+        get('colors')(find).should.have.length(1000);
+    });
 });
