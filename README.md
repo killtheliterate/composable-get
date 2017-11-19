@@ -1,4 +1,6 @@
 # Composable Get
+
+[![Greenkeeper badge](https://badges.greenkeeper.io/killtheliterate/composable-get.svg)](https://greenkeeper.io/)
 This is a tiny utility that provides a curried function for traversing objects and
 plucking values. It's primary use-case is one in which it is composed with other
 functions while traversing a large object.
